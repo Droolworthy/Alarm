@@ -1,32 +1,74 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
-[RequireComponent(typeof(SoundControl))]
-public class Alarm : MonoBehaviour
+[RequireComponent(typeof(AudioSource))]
+public class SoundControl : MonoBehaviour
 {
-    private SoundControl _soundControl;
+    [SerializeField] private AudioSource _audioSource;
+
+    private readonly float _volume = 0.1f;
+    private readonly float _startValue = 0.001f;
+    private readonly Coroutine _coroutine;
 
     private void Start()
     {
-        _soundControl = GetComponent<SoundControl>();
+        _audioSource = GetComponent<AudioSource>();
+        _audioSource.volume = _startValue;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    public IEnumerator ChangeSoundLevel(int soundLevel)
     {
-        int soundLevel = 1;
+        EnableAudio();
 
-        if (collision.TryGetComponent<Player>(out Player player))
+        yield return TransformSoundLevel(soundLevel);
+
+        DisableAudio();
+
+        StopCoroutine();
+    }
+
+    private void EnableAudio()
+    {
+        if (_audioSource.volume == _startValue)
         {
-            StartCoroutine(_soundControl.ChangeSoundLevel(soundLevel));
+            _audioSource.Play();
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    private IEnumerator TransformSoundLevel(int soundLevel)
     {
-        int soundLevel = 0;
+        bool isWork = true;
 
-        if (collision.TryGetComponent<Player>(out Player player))
+        while (isWork)
         {
-            StartCoroutine(_soundControl.ChangeSoundLevel(soundLevel));
+            if (_audioSource.volume == soundLevel)
+            {
+                isWork = false;
+            }
+            else
+            {
+                _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, soundLevel, Time.deltaTime * _volume);
+            }
+
+            yield return null;
+        }
+    }
+
+    private void DisableAudio()
+    {
+        int minSoundLevel = 0;
+
+        if (_audioSource.volume == minSoundLevel)
+        {
+            _audioSource.Stop();
+        }
+    }
+
+    private void StopCoroutine()
+    {
+        if (_coroutine != null)
+        {
+            StopCoroutine(_coroutine);
         }
     }
 }
