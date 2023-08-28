@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
@@ -8,7 +8,7 @@ public class SoundControl : MonoBehaviour
 
     private readonly float _volume = 0.1f;
     private readonly float _startValue = 0.001f;
-    private readonly Coroutine _coroutine;
+    private Coroutine _coroutine;
 
     private void Start()
     {
@@ -16,15 +16,23 @@ public class SoundControl : MonoBehaviour
         _audioSource.volume = _startValue;
     }
 
-    public IEnumerator ChangeSoundLevel(int soundLevel)
+    public void RunCoroutine(int soundLevel)
+    {
+        if (_coroutine != null)
+        {
+            StopCoroutine(_coroutine);
+        }
+
+        _coroutine = StartCoroutine(ChangeSoundLevel(soundLevel));
+    }
+
+    private IEnumerator ChangeSoundLevel(int soundLevel)
     {
         EnableAudio();
 
         yield return TransformSoundLevel(soundLevel);
 
         DisableAudio();
-
-        StopCoroutine();
     }
 
     private void EnableAudio()
@@ -61,14 +69,6 @@ public class SoundControl : MonoBehaviour
         if (_audioSource.volume == minSoundLevel)
         {
             _audioSource.Stop();
-        }
-    }
-
-    private void StopCoroutine()
-    {
-        if (_coroutine != null)
-        {
-            StopCoroutine(_coroutine);
         }
     }
 }
