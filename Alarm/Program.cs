@@ -7,7 +7,7 @@ public class Alarm : MonoBehaviour
 
     private void Start()
     {
-        _soundControl = GetComponent<SoundControl>();
+        _soundControl = GetComponent<SoundControl>();   
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -16,7 +16,7 @@ public class Alarm : MonoBehaviour
 
         if (collision.TryGetComponent<Player>(out Player player))
         {
-            StartCoroutine(_soundControl.ChangeSoundLevel(soundLevel));
+            _soundControl.RunCoroutine(soundLevel);
         }
     }
 
@@ -26,7 +26,7 @@ public class Alarm : MonoBehaviour
 
         if (collision.TryGetComponent<Player>(out Player player))
         {
-            StartCoroutine(_soundControl.ChangeSoundLevel(soundLevel));
+            _soundControl.RunCoroutine(soundLevel);
         }
     }
 }
