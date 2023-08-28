@@ -1,74 +1,32 @@
-﻿using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
-public class SoundControl : MonoBehaviour
+[RequireComponent(typeof(SoundControl))]
+public class Alarm : MonoBehaviour
 {
-    [SerializeField] private AudioSource _audioSource;
-
-    private readonly float _volume = 0.1f;
-    private readonly float _startValue = 0.001f;
-    private readonly Coroutine _coroutine;
+    private SoundControl _soundControl;
 
     private void Start()
     {
-        _audioSource = GetComponent<AudioSource>();
-        _audioSource.volume = _startValue;
+        _soundControl = GetComponent<SoundControl>();
     }
 
-    public IEnumerator ChangeSoundLevel(int soundLevel)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        EnableAudio();
+        int soundLevel = 1;
 
-        yield return TransformSoundLevel(soundLevel);
-
-        DisableAudio();
-
-        StopCoroutine();
-    }
-
-    private void EnableAudio()
-    {
-        if (_audioSource.volume == _startValue)
+        if (collision.TryGetComponent<Player>(out Player player))
         {
-            _audioSource.Play();
+            StartCoroutine(_soundControl.ChangeSoundLevel(soundLevel));
         }
     }
 
-    private IEnumerator TransformSoundLevel(int soundLevel)
+    private void OnTriggerExit2D(Collider2D collision)
     {
-        bool isWork = true;
+        int soundLevel = 0;
 
-        while (isWork)
+        if (collision.TryGetComponent<Player>(out Player player))
         {
-            if (_audioSource.volume == soundLevel)
-            {
-                isWork = false;
-            }
-            else
-            {
-                _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, soundLevel, Time.deltaTime * _volume);
-            }
-
-            yield return null;
-        }
-    }
-
-    private void DisableAudio()
-    {
-        int minSoundLevel = 0;
-
-        if (_audioSource.volume == minSoundLevel)
-        {
-            _audioSource.Stop();
-        }
-    }
-
-    private void StopCoroutine()
-    {
-        if (_coroutine != null)
-        {
-            StopCoroutine(_coroutine);
+            StartCoroutine(_soundControl.ChangeSoundLevel(soundLevel));
         }
     }
 }
