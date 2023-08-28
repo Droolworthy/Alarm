@@ -55,7 +55,8 @@ public class SoundControl : MonoBehaviour
             }
             else
             {
-                _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, soundLevel, Time.deltaTime * _volume);
+                _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, 
+                    soundLevel, Time.deltaTime * _volume);
             }
 
             yield return null;
