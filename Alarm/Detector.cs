@@ -2,45 +2,42 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
-public class SoundControl : MonoBehaviour
+public class Detector : MonoBehaviour
 {
     [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private float _speedOfSound;
 
-    private readonly float _volume = 0.1f;
-    private readonly float _startValue = 0.001f;
     private Coroutine _coroutine;
 
     private void Start()
     {
         _audioSource = GetComponent<AudioSource>();
-        _audioSource.volume = _startValue;
     }
 
-    public void RunCoroutine(int soundLevel)
+    public void RunCoroutineBoostSoundLevel() 
     {
-        if (_coroutine != null)
-        {
-            StopCoroutine(_coroutine);
-        }
+        int soundLevelMax = 1;
 
-        _coroutine = StartCoroutine(ChangeSoundLevel(soundLevel));
+        _coroutine = StartCoroutine(ChangeSoundLevel(soundLevelMax));
+    }
+
+    public void RunCoroutineReduceSoundLevel() 
+    {
+        int soundLevelMin = 0;
+
+        _coroutine = StartCoroutine(ChangeSoundLevel(soundLevelMin));
     }
 
     private IEnumerator ChangeSoundLevel(int soundLevel)
     {
-        EnableAudio();
+        if (_coroutine != null)
+            StopCoroutine(_coroutine);
 
-        yield return TransformSoundLevel(soundLevel);
+        _audioSource.Play();
+
+        yield return StartCoroutine(TransformSoundLevel(soundLevel));
 
         DisableAudio();
-    }
-
-    private void EnableAudio()
-    {
-        if (_audioSource.volume == _startValue)
-        {
-            _audioSource.Play();
-        }
     }
 
     private IEnumerator TransformSoundLevel(int soundLevel)
@@ -49,16 +46,12 @@ public class SoundControl : MonoBehaviour
 
         while (isWork)
         {
-            if (_audioSource.volume == soundLevel)
-            {
-                isWork = false;
-            }
-            else
-            {
-                _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, 
-                    soundLevel, Time.deltaTime * _volume);
-            }
+            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume,
+                    soundLevel, Time.deltaTime * _speedOfSound);
 
+            if (_audioSource.volume == soundLevel)
+                isWork = false;
+     
             yield return null;
         }
     }
@@ -68,8 +61,6 @@ public class SoundControl : MonoBehaviour
         int minSoundLevel = 0;
 
         if (_audioSource.volume == minSoundLevel)
-        {
-            _audioSource.Stop();
-        }
+        _audioSource.Stop();
     }
 }
