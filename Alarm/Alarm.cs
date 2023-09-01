@@ -1,32 +1,24 @@
 using UnityEngine;
 
-[RequireComponent(typeof(SoundControl))]
+[RequireComponent(typeof(Detector))]
 public class Alarm : MonoBehaviour
 {
-    private SoundControl _soundControl;
+    private Detector _detector;
 
     private void Start()
     {
-        _soundControl = GetComponent<SoundControl>();   
+        _detector = GetComponent<Detector>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        int soundLevel = 1;
-
         if (collision.TryGetComponent<Player>(out Player player))
-        {
-            _soundControl.RunCoroutine(soundLevel);
-        }
+        _detector.RunCoroutineBoostSoundLevel();
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        int soundLevel = 0;
-
         if (collision.TryGetComponent<Player>(out Player player))
-        {
-            _soundControl.RunCoroutine(soundLevel);
-        }
+        _detector.RunCoroutineReduceSoundLevel();
     }
 }
